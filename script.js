@@ -1,18 +1,16 @@
 const imageInput = document.getElementById('imageInput');
 
-const previewCanvas = document.getElementById('previewCanvas');
-
-const ctx = previewCanvas.getContext('2d');
-
-const imgWidthInput = document.getElementById('imgWidth');
-
-const imgHeightInput = document.getElementById('imgHeight');
-
 const paperSizeSelect = document.getElementById('paperSize');
+
+const fitModeSelect = document.getElementById('fitMode');
 
 const generateBtn = document.getElementById('generateBtn');
 
 const downloadBtn = document.getElementById('downloadBtn');
+
+const previewCanvas = document.getElementById('previewCanvas');
+
+const previewCtx = previewCanvas.getContext('2d');
 
 const pagesContainer = document.getElementById('pagesContainer');
 
@@ -39,121 +37,56 @@ const PAGE_SIZES = {
 
 };
 
-imageInput.addEventListener('change', function (e) {
+/*
+========================================
+UPLOAD IMAGE
+========================================
+*/
+
+imageInput.addEventListener('change', function(e){
 
   const file = e.target.files[0];
 
-  if (!file) return;
+  if(!file) return;
 
   const reader = new FileReader();
 
-  reader.onload = function (event) {
+  reader.onload = function(event){
 
     const img = new Image();
 
-    img.onload = function () {
+    img.onload = function(){
 
       uploadedImage = img;
 
-      imgWidthInput.value = img.width;
+      alert(`
+Image Uploaded Successfully
 
-      imgHeightInput.value = img.height;
+Image Size:
+${img.width} × ${img.height}
+      `);
 
-      drawPreview();
     };
 
     img.src = event.target.result;
+
   };
 
   reader.readAsDataURL(file);
 
 });
 
-function drawPreview() {
+/*
+========================================
+GENERATE POSTER
+========================================
+*/
 
-  if (!uploadedImage) return;
+generateBtn.addEventListener('click', generatePoster);
 
-  const width = parseInt(imgWidthInput.value);
+function generatePoster(){
 
-  const height = parseInt(imgHeightInput.value);
-
-  previewCanvas.width = width;
-
-  previewCanvas.height = height;
-
-  ctx.clearRect(0, 0, width, height);
-
-  ctx.drawImage(uploadedImage, 0, 0, width, height);
-
-  drawGrid(width, height);
-}
-
-function drawGrid(width, height) {
-
-  const paper = PAGE_SIZES[paperSizeSelect.value];
-
-  const cols = Math.ceil(width / paper.width);
-
-  const rows = Math.ceil(height / paper.height);
-
-  ctx.strokeStyle = "red";
-
-  ctx.lineWidth = 5;
-
-  ctx.font = "100px Arial";
-
-  ctx.fillStyle = "red";
-
-  for (let x = 1; x < cols; x++) {
-
-    ctx.beginPath();
-
-    ctx.moveTo(x * paper.width, 0);
-
-    ctx.lineTo(x * paper.width, height);
-
-    ctx.stroke();
-  }
-
-  for (let y = 1; y < rows; y++) {
-
-    ctx.beginPath();
-
-    ctx.moveTo(0, y * paper.height);
-
-    ctx.lineTo(width, y * paper.height);
-
-    ctx.stroke();
-  }
-
-  let count = 1;
-
-  for (let row = 0; row < rows; row++) {
-
-    for (let col = 0; col < cols; col++) {
-
-      const x = col * paper.width + 120;
-
-      const y = row * paper.height + 150;
-
-      ctx.fillText(count, x, y);
-
-      count++;
-    }
-  }
-}
-
-imgWidthInput.addEventListener('input', drawPreview);
-
-imgHeightInput.addEventListener('input', drawPreview);
-
-paperSizeSelect.addEventListener('change', drawPreview);
-
-generateBtn.addEventListener('click', generatePages);
-
-function generatePages() {
-
-  if (!uploadedImage) {
+  if(!uploadedImage){
 
     alert("Please upload image first");
 
@@ -164,62 +97,269 @@ function generatePages() {
 
   pagesContainer.innerHTML = '';
 
-  const width = parseInt(imgWidthInput.value);
+  const paper = PAGE_SIZES[
+    paperSizeSelect.value
+  ];
 
-  const height = parseInt(imgHeightInput.value);
+  const pageWidth = paper.width;
 
-  const paper = PAGE_SIZES[paperSizeSelect.value];
+  const pageHeight = paper.height;
 
-  const cols = Math.ceil(width / paper.width);
+  const originalWidth = uploadedImage.width;
 
-  const rows = Math.ceil(height / paper.height);
+  const originalHeight = uploadedImage.height;
+
+  /*
+  ========================================
+  CALCULATE BEST FULL PAGE FIT
+  ========================================
+  */
+
+  let cols = Math.round(
+    originalWidth / pageWidth
+  );
+
+  let rows = Math.round(
+    originalHeight / pageHeight
+  );
+
+  if(cols < 1) cols = 1;
+
+  if(rows < 1) rows = 1;
+
+  /*
+  ========================================
+  FINAL POSTER SIZE
+  ========================================
+  */
+
+  const finalWidth = cols * pageWidth;
+
+  const finalHeight = rows * pageHeight;
+
+  /*
+  ========================================
+  MASTER CANVAS
+  ========================================
+  */
+
+  const masterCanvas = document.createElement('canvas');
+
+  const masterCtx = masterCanvas.getContext('2d');
+
+  masterCanvas.width = finalWidth;
+
+  masterCanvas.height = finalHeight;
+
+  /*
+  ========================================
+  FIT MODE
+  ========================================
+  */
+
+  const fitMode = fitModeSelect.value;
+
+  let scale;
+
+  if(fitMode === "cover"){
+
+    scale = Math.max(
+      finalWidth / originalWidth,
+      finalHeight / originalHeight
+    );
+
+  }else{
+
+    scale = Math.min(
+      finalWidth / originalWidth,
+      finalHeight / originalHeight
+    );
+  }
+
+  const scaledWidth = originalWidth * scale;
+
+  const scaledHeight = originalHeight * scale;
+
+  const offsetX =
+    (finalWidth - scaledWidth) / 2;
+
+  const offsetY =
+    (finalHeight - scaledHeight) / 2;
+
+  /*
+  ========================================
+  DRAW IMAGE
+  ========================================
+  */
+
+  masterCtx.fillStyle = "#ffffff";
+
+  masterCtx.fillRect(
+    0,
+    0,
+    finalWidth,
+    finalHeight
+  );
+
+  masterCtx.drawImage(
+    uploadedImage,
+    offsetX,
+    offsetY,
+    scaledWidth,
+    scaledHeight
+  );
+
+  /*
+  ========================================
+  DRAW GRID
+  ========================================
+  */
+
+  masterCtx.strokeStyle = "red";
+
+  masterCtx.lineWidth = 8;
+
+  for(let x = 1; x < cols; x++){
+
+    masterCtx.beginPath();
+
+    masterCtx.moveTo(
+      x * pageWidth,
+      0
+    );
+
+    masterCtx.lineTo(
+      x * pageWidth,
+      finalHeight
+    );
+
+    masterCtx.stroke();
+  }
+
+  for(let y = 1; y < rows; y++){
+
+    masterCtx.beginPath();
+
+    masterCtx.moveTo(
+      0,
+      y * pageHeight
+    );
+
+    masterCtx.lineTo(
+      finalWidth,
+      y * pageHeight
+    );
+
+    masterCtx.stroke();
+  }
+
+  /*
+  ========================================
+  PREVIEW
+  ========================================
+  */
+
+  previewCanvas.width = finalWidth;
+
+  previewCanvas.height = finalHeight;
+
+  previewCtx.clearRect(
+    0,
+    0,
+    finalWidth,
+    finalHeight
+  );
+
+  previewCtx.drawImage(
+    masterCanvas,
+    0,
+    0
+  );
+
+  /*
+  ========================================
+  SPLIT INTO FULL PAGES
+  ========================================
+  */
 
   let count = 1;
 
-  for (let row = 0; row < rows; row++) {
+  for(let row = 0; row < rows; row++){
 
-    for (let col = 0; col < cols; col++) {
+    for(let col = 0; col < cols; col++){
 
-      const canvas = document.createElement('canvas');
+      const canvas =
+        document.createElement('canvas');
 
-      const c = canvas.getContext('2d');
+      const ctx =
+        canvas.getContext('2d');
 
-      canvas.width = paper.width;
+      canvas.width = pageWidth;
 
-      canvas.height = paper.height;
+      canvas.height = pageHeight;
 
-      c.drawImage(
-        uploadedImage,
-        col * paper.width,
-        row * paper.height,
-        paper.width,
-        paper.height,
+      ctx.drawImage(
+        masterCanvas,
+
+        col * pageWidth,
+        row * pageHeight,
+
+        pageWidth,
+        pageHeight,
+
         0,
         0,
-        paper.width,
-        paper.height
+
+        pageWidth,
+        pageHeight
       );
 
-      c.fillStyle = "red";
+      /*
+      PAGE NUMBER
+      */
 
-      c.font = "120px Arial";
+      ctx.fillStyle = "red";
 
-      c.fillText(count, 100, 150);
+      ctx.font = "120px Arial";
 
-      const imageData = canvas.toDataURL("image/png", 1.0);
+      ctx.fillText(
+        count,
+        100,
+        150
+      );
+
+      /*
+      EXPORT IMAGE
+      */
+
+      const imageData =
+        canvas.toDataURL(
+          "image/png",
+          1.0
+        );
 
       generatedPages.push({
+
         name: `page-${count}.png`,
+
         data: imageData
+
       });
 
-      const div = document.createElement('div');
+      /*
+      CREATE UI
+      */
+
+      const div =
+        document.createElement('div');
 
       div.className = "page-item";
 
       div.innerHTML = `
       
-        <h3>Page ${count}</h3>
+        <h3>
+          Page ${count}
+        </h3>
 
         <img src="${imageData}">
       
@@ -231,16 +371,35 @@ function generatePages() {
     }
   }
 
-  alert("Poster Pages Generated Successfully");
+  alert(`
+Poster Generated Successfully
+
+Pages:
+${cols * rows}
+
+Layout:
+${cols} × ${rows}
+
+All pages are FULL SIZE
+  `);
 }
 
-downloadBtn.addEventListener('click', downloadZIP);
+/*
+========================================
+DOWNLOAD ZIP
+========================================
+*/
 
-async function downloadZIP() {
+downloadBtn.addEventListener(
+  'click',
+  downloadZIP
+);
 
-  if (generatedPages.length === 0) {
+async function downloadZIP(){
 
-    alert("Generate pages first");
+  if(generatedPages.length === 0){
+
+    alert("Generate poster first");
 
     return;
   }
@@ -249,17 +408,28 @@ async function downloadZIP() {
 
   generatedPages.forEach(page => {
 
-    const base64Data = page.data.split(',')[1];
+    const base64Data =
+      page.data.split(',')[1];
 
-    zip.file(page.name, base64Data, {
-      base64: true
+    zip.file(
+      page.name,
+      base64Data,
+      {
+        base64: true
+      }
+    );
+
+  });
+
+  const content =
+    await zip.generateAsync({
+
+      type: "blob"
+
     });
 
-  });
-
-  const content = await zip.generateAsync({
-    type: "blob"
-  });
-
-  saveAs(content, "poster-pages.zip");
+  saveAs(
+    content,
+    "poster-pages.zip"
+  );
 }

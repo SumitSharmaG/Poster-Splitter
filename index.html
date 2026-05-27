@@ -2,14 +2,16 @@
 <html lang="en">
 
 <head>
+
   <meta charset="UTF-8">
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>Poster Splitter Tool</title>
 
   <link rel="stylesheet" href="style.css">
 
-  <!-- ZIP LIBRARY -->
+  <!-- JSZIP -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
   <!-- FILE SAVER -->
@@ -19,97 +21,84 @@
 
 <body>
 
-  <div class="main-container">
+  <div class="container">
 
     <!-- HEADER -->
-    <header>
 
-      <h1>🖼 Poster Splitter Tool</h1>
+    <header class="header">
 
-      <p class="top-description">
-        Upload any image and split it into printable A4 poster pages.
+      <h1>
+        🖼 Poster Splitter Tool
+      </h1>
+
+      <p>
+        Convert any image into FULL A4 poster pages automatically.
       </p>
 
     </header>
 
-    <!-- STEPS -->
-    <section class="step-guide">
+    <!-- HOW TO USE -->
 
-      <h2>📌 Step By Step Guide</h2>
+    <section class="instructions">
 
-      <div class="steps">
+      <h2>
+        📌 Step By Step Guide
+      </h2>
 
-        <div class="step-card">
+      <div class="instruction-grid">
+
+        <div class="instruction-card">
           <span>1</span>
-          <p>Upload your image</p>
+          <p>Upload Image</p>
         </div>
 
-        <div class="step-card">
+        <div class="instruction-card">
           <span>2</span>
-          <p>Select page format</p>
+          <p>Select A4 / A3</p>
         </div>
 
-        <div class="step-card">
+        <div class="instruction-card">
           <span>3</span>
-          <p>Adjust image size</p>
+          <p>Generate Poster</p>
         </div>
 
-        <div class="step-card">
+        <div class="instruction-card">
           <span>4</span>
-          <p>Generate pages</p>
+          <p>Download ZIP</p>
         </div>
 
-        <div class="step-card">
+        <div class="instruction-card">
           <span>5</span>
-          <p>Download ZIP</p>
+          <p>Print & Join Pages</p>
         </div>
 
       </div>
 
     </section>
 
-    <!-- TOOL CONTROLS -->
+    <!-- TOOL SECTION -->
+
     <section class="tool-box">
 
-      <div class="control-box">
+      <div class="control">
 
-        <label>📤 Upload Image</label>
+        <label>
+          📤 Upload Image
+        </label>
 
-        <input type="file" id="imageInput" accept="image/*">
-
-        <small>
-          JPG, PNG, WEBP supported
-        </small>
-
-      </div>
-
-      <div class="control-box">
-
-        <label>📏 Width (px)</label>
-
-        <input type="number" id="imgWidth">
-
-        <small>
-          Custom image width
-        </small>
+        <input
+          type="file"
+          id="imageInput"
+          accept="image/*"
+        >
 
       </div>
 
-      <div class="control-box">
+      <div class="control">
 
-        <label>📐 Height (px)</label>
-
-        <input type="number" id="imgHeight">
-
-        <small>
-          Custom image height
-        </small>
-
-      </div>
-
-      <div class="control-box">
-
-        <label>📄 Page Format</label>
+        <label>
+          📄 Page Size
+        </label>
 
         <select id="paperSize">
 
@@ -127,16 +116,32 @@
 
         </select>
 
-        <small>
-          Select printable page size
-        </small>
+      </div>
+
+      <div class="control">
+
+        <label>
+          🔥 Poster Fit Mode
+        </label>
+
+        <select id="fitMode">
+
+          <option value="cover">
+            Full Poster (No White Space)
+          </option>
+
+          <option value="contain">
+            Full Image (May Have White Space)
+          </option>
+
+        </select>
 
       </div>
 
       <div class="button-group">
 
         <button id="generateBtn">
-          🚀 Generate Pages
+          🚀 Generate Poster
         </button>
 
         <button id="downloadBtn">
@@ -147,34 +152,30 @@
 
     </section>
 
-    <!-- INSTRUCTIONS -->
-    <section class="instruction-box">
+    <!-- IMPORTANT INFO -->
 
-      <h2>📝 Printing Instructions</h2>
+    <section class="important-box">
+
+      <h2>
+        🖨 Print Settings
+      </h2>
 
       <ul>
 
         <li>
-          Use high quality image for best result.
+          Set Margins = None
         </li>
 
         <li>
-          While printing select:
-          <b>Margins = None</b>
+          Enable Borderless Printing
         </li>
 
         <li>
-          Enable:
-          <b>Borderless Printing</b>
+          Print Scale = 100%
         </li>
 
         <li>
-          Set:
-          <b>Scale = 100%</b>
-        </li>
-
-        <li>
-          Join pages with tape or glue.
+          Use High Quality Print
         </li>
 
       </ul>
@@ -182,12 +183,15 @@
     </section>
 
     <!-- PREVIEW -->
+
     <section class="preview-section">
 
-      <h2>🖼 Poster Preview</h2>
+      <h2>
+        🖼 Poster Preview
+      </h2>
 
       <p>
-        Red grid lines show poster page cuts.
+        Red lines show FULL page cuts.
       </p>
 
       <div class="canvas-wrapper">
@@ -199,9 +203,12 @@
     </section>
 
     <!-- GENERATED PAGES -->
+
     <section class="generated-section">
 
-      <h2>📦 Generated Pages</h2>
+      <h2>
+        📦 Generated Pages
+      </h2>
 
       <div id="pagesContainer"></div>
 
@@ -213,4 +220,4 @@
 
 </body>
 
-</html>
+  </html>

@@ -1,7 +1,8 @@
-Process:-
+°Process:-
 
-Margins = None
-Scale = 100%
-Borderless = ON
+•Margins = None 
+•Scale = 100% 
+•Borderless = ON 
+•Quality= High 
 
-Tabhi pages perfectly connect honge ✔️
+°Tabhi pages perfectly connect honge ✔️
